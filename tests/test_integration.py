@@ -140,3 +140,17 @@ async def test_hopper_and_diagnostics(hass: HomeAssistant, cloud) -> None:
     diag = await async_get_config_entry_diagnostics(hass, entry)
     assert diag["entry"]["data"][CONF_PASSWORD] == "**REDACTED**"
     assert "secret" not in str(diag) and "me@example.com" not in str(diag)
+
+
+async def test_card_served(hass: HomeAssistant, cloud, hass_client) -> None:
+    from homeassistant.components.frontend import DATA_EXTRA_MODULE_URL
+    from homeassistant.setup import async_setup_component
+
+    assert await async_setup_component(hass, "frontend", {})
+    await _setup(hass)
+    urls = hass.data[DATA_EXTRA_MODULE_URL].urls
+    assert any(u.startswith("/pawsync_feeder/pawsync-feeder-card.js") for u in urls)
+    client = await hass_client()
+    resp = await client.get("/pawsync_feeder/pawsync-feeder-card.js")
+    assert resp.status == 200
+    assert "pawsync-feeder-card" in await resp.text()

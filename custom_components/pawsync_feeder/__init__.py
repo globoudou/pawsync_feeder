@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import voluptuous as vol
 from homeassistant.const import ATTR_DEVICE_ID, CONF_EMAIL, CONF_PASSWORD
 from homeassistant.core import HomeAssistant, ServiceCall
@@ -14,6 +16,7 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.typing import ConfigType
+from homeassistant.loader import async_get_integration
 
 from .api import PawsyncAuthError, PawsyncClient, PawsyncError
 from .const import (
@@ -50,8 +53,27 @@ def build_client(hass: HomeAssistant, email: str, password: str) -> PawsyncClien
     )
 
 
+CARD_URL = "/pawsync_feeder/pawsync-feeder-card.js"
+CARD_FILE = Path(__file__).parent / "www" / "pawsync-feeder-card.js"
+
+
+async def _async_register_card(hass: HomeAssistant) -> None:
+    """Serve the Lovelace card and load it in every dashboard."""
+    if hass.http is None or "frontend" not in hass.config.components:
+        return
+    from homeassistant.components.frontend import add_extra_js_url
+    from homeassistant.components.http import StaticPathConfig
+
+    version = (await async_get_integration(hass, DOMAIN)).version
+    await hass.http.async_register_static_paths(
+        [StaticPathConfig(CARD_URL, str(CARD_FILE), cache_headers=False)]
+    )
+    add_extra_js_url(hass, f"{CARD_URL}?v={version}")
+
+
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
-    """Register the feed action (works across all accounts)."""
+    """Register the feed action (works across all accounts) and the dashboard card."""
+    await _async_register_card(hass)
 
     async def _feed(call: ServiceCall) -> None:
         registry = dr.async_get(hass)

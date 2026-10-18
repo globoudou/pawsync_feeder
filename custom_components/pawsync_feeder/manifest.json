@@ -1,14 +1,24 @@
 {
   "domain": "pawsync_feeder",
   "name": "Pawsync Feeder",
-  "codeowners": ["@globoudou"],
+  "after_dependencies": [
+    "frontend",
+    "http"
+  ],
+  "codeowners": [
+    "@globoudou"
+  ],
   "config_flow": true,
-  "dependencies": ["diagnostics"],
+  "dependencies": [
+    "diagnostics"
+  ],
   "documentation": "https://github.com/globoudou/pawsync_feeder",
   "integration_type": "hub",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/globoudou/pawsync_feeder/issues",
-  "loggers": ["custom_components.pawsync_feeder"],
+  "loggers": [
+    "custom_components.pawsync_feeder"
+  ],
   "requirements": [],
-  "version": "1.0.0"
+  "version": "1.1.0"
 }

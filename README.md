@@ -49,6 +49,20 @@ Elle peut cohabiter avec `pawsync` (domaine différent), pratique pour comparer 
 
 Home Assistant 2025.8 ou plus récent est requis.
 
+## Carte de tableau de bord
+
+L'intégration installe sa propre carte, chargée automatiquement dans tous les tableaux de bord.
+*Modifier le tableau de bord → Ajouter une carte →* cherchez **Pawsync Feeder**.
+Elle trouve seule les entités du distributeur (aucun identifiant à saisir) et affiche : réservoir, gamelle,
+alertes (hors ligne, gamelle retirée, déshydratant), prochain et dernier repas, consommation du jour,
+bouton « Nourrir » avec confirmation, réglage de la portion, appel du repas et mode nuit.
+
+```yaml
+type: custom:pawsync-feeder-card
+# device: <id de l'appareil>   # facultatif si vous n'avez qu'un distributeur
+# title: Croquettes            # facultatif
+```
+
 ## Exemple d'automatisation
 
 ```yaml
