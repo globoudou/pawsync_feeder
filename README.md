@@ -51,7 +51,8 @@ Home Assistant 2025.8 ou plus récent est requis.
 
 ## Carte de tableau de bord
 
-L'intégration installe sa propre carte, chargée automatiquement dans tous les tableaux de bord.
+L'intégration installe sa propre carte et l'ajoute automatiquement aux ressources des tableaux de bord
+(mode « stockage », le mode par défaut). Après une mise à jour, fermez et rouvrez l'appli.
 *Modifier le tableau de bord → Ajouter une carte →* cherchez **Pawsync Feeder**.
 Elle trouve seule les entités du distributeur (aucun identifiant à saisir) et affiche : réservoir, gamelle,
 alertes (hors ligne, gamelle retirée, déshydratant), prochain et dernier repas, consommation du jour,

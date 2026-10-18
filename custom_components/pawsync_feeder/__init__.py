@@ -94,6 +94,38 @@ async def _async_register_card(hass: HomeAssistant) -> None:
     _LOGGER.debug("Pawsync card registered at %s (v%s)", CARD_URL, version)
 
 
+async def _async_ensure_dashboard_resource(hass: HomeAssistant) -> None:
+    """Add (or update) the card as a dashboard resource, like a manual install would.
+
+    The app does not always pick up modules injected via add_extra_js_url; a
+    Lovelace resource is loaded reliably everywhere. Only storage mode can be edited.
+    """
+    try:
+        from homeassistant.components.lovelace.const import LOVELACE_DATA
+
+        data = hass.data.get(LOVELACE_DATA)
+        resources = getattr(data, "resources", None)
+        if resources is None or getattr(data, "resource_mode", "") != "storage":
+            return
+        if not resources.loaded:
+            await resources.async_load()
+            resources.loaded = True
+        version = (await async_get_integration(hass, DOMAIN)).version
+        url = f"{CARD_URL}?v={version}"
+        matches = [r for r in resources.async_items() if str(r.get("url", "")).split("?")[0] == CARD_URL]
+        if not matches:
+            await resources.async_create_item({"res_type": "module", "url": url})
+            _LOGGER.info("Added dashboard resource %s", url)
+            return
+        first, *duplicates = matches
+        if first.get("url") != url or first.get("type") != "module":
+            await resources.async_update_item(first["id"], {"res_type": "module", "url": url})
+        for dup in duplicates:
+            await resources.async_delete_item(dup["id"])
+    except Exception:
+        _LOGGER.exception("Could not register the Pawsync card as a dashboard resource")
+
+
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Register the feed action (works across all accounts) and the dashboard card."""
     await _async_register_card(hass)
@@ -103,6 +135,14 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
             await _async_register_card(hass)
 
         hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, _late_register)
+
+    async def _resource(_event: Event | None = None) -> None:
+        await _async_ensure_dashboard_resource(hass)
+
+    if hass.is_running:
+        hass.async_create_task(_resource())
+    else:
+        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, _resource)
 
     async def _feed(call: ServiceCall) -> None:
         registry = dr.async_get(hass)

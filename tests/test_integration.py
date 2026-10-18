@@ -165,3 +165,18 @@ async def test_odd_flag_formats(hass: HomeAssistant, cloud) -> None:
     assert hass.states.get(_eid(hass, "switch", "slow_feeding")).state == STATE_ON
     assert hass.states.get(_eid(hass, "switch", "sleep_mode")).state == STATE_ON
     assert hass.states.get(_eid(hass, "time", "sleep_start")).state == "22:00:00"
+
+
+async def test_dashboard_resource(hass: HomeAssistant, cloud) -> None:
+    from homeassistant.components.lovelace.const import LOVELACE_DATA
+    from homeassistant.setup import async_setup_component
+
+    assert await async_setup_component(hass, "lovelace", {})
+    resources = hass.data[LOVELACE_DATA].resources
+    await resources.async_load()
+    resources.loaded = True
+    await resources.async_create_item({"res_type": "module", "url": "/pawsync_feeder/pawsync-feeder-card.js"})
+    await _setup(hass)
+    await hass.async_block_till_done(wait_background_tasks=True)
+    items = [r for r in resources.async_items() if "pawsync-feeder-card" in r["url"]]
+    assert len(items) == 1 and items[0]["url"].endswith("?v=1.2.0") and items[0]["type"] == "module"
