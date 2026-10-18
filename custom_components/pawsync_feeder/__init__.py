@@ -5,8 +5,13 @@ from __future__ import annotations
 from pathlib import Path
 
 import voluptuous as vol
-from homeassistant.const import ATTR_DEVICE_ID, CONF_EMAIL, CONF_PASSWORD
-from homeassistant.core import HomeAssistant, ServiceCall
+from homeassistant.const import (
+    ATTR_DEVICE_ID,
+    CONF_EMAIL,
+    CONF_PASSWORD,
+    EVENT_HOMEASSISTANT_STARTED,
+)
+from homeassistant.core import Event, HomeAssistant, ServiceCall
 from homeassistant.exceptions import (
     ConfigEntryAuthFailed,
     ConfigEntryNotReady,
@@ -57,10 +62,16 @@ CARD_URL = "/pawsync_feeder/pawsync-feeder-card.js"
 CARD_FILE = Path(__file__).parent / "www" / "pawsync-feeder-card.js"
 
 
+CARD_REGISTERED = f"{DOMAIN}_card_registered"
+
+
 async def _async_register_card(hass: HomeAssistant) -> None:
-    """Serve the Lovelace card and load it in every dashboard."""
+    """Serve the Lovelace card and load it in every dashboard (once)."""
+    if hass.data.get(CARD_REGISTERED):
+        return
     if hass.http is None or "frontend" not in hass.config.components:
         return
+    hass.data[CARD_REGISTERED] = True
     from homeassistant.components.frontend import add_extra_js_url
     from homeassistant.components.http import StaticPathConfig
 
@@ -74,6 +85,12 @@ async def _async_register_card(hass: HomeAssistant) -> None:
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Register the feed action (works across all accounts) and the dashboard card."""
     await _async_register_card(hass)
+    if not hass.data.get(CARD_REGISTERED):
+        # Frontend not loaded yet at this point of the boot: retry once HA has started.
+        async def _late_register(_event: Event) -> None:
+            await _async_register_card(hass)
+
+        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, _late_register)
 
     async def _feed(call: ServiceCall) -> None:
         registry = dr.async_get(hass)
@@ -116,6 +133,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: PawsyncConfigEntry) -> bool:
+    await _async_register_card(hass)
     client = build_client(hass, entry.data[CONF_EMAIL], entry.data[CONF_PASSWORD])
     try:
         await client.login()
