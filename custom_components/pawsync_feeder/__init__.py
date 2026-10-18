@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 
 import voluptuous as vol
@@ -33,6 +34,8 @@ from .const import (
     SERVICE_FEED,
 )
 from .coordinator import PawsyncConfigEntry, PawsyncCoordinator
+
+_LOGGER = logging.getLogger(__name__)
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
@@ -69,7 +72,8 @@ async def _async_register_card(hass: HomeAssistant) -> None:
     """Serve the Lovelace card and load it in every dashboard (once)."""
     if hass.data.get(CARD_REGISTERED):
         return
-    if hass.http is None or "frontend" not in hass.config.components:
+    if hass.http is None:
+        _LOGGER.warning("HTTP server not ready, Pawsync card not registered yet")
         return
     hass.data[CARD_REGISTERED] = True
     from homeassistant.components.frontend import add_extra_js_url
@@ -80,6 +84,7 @@ async def _async_register_card(hass: HomeAssistant) -> None:
         [StaticPathConfig(CARD_URL, str(CARD_FILE), cache_headers=False)]
     )
     add_extra_js_url(hass, f"{CARD_URL}?v={version}")
+    _LOGGER.debug("Pawsync card served at %s", CARD_URL)
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
