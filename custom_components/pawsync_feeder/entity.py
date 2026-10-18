@@ -24,6 +24,34 @@ def firmware_version(device: PawsyncDevice, main: bool = True) -> str | None:
     return None
 
 
+def as_bool(value: Any) -> bool | None:
+    """Tolerant flag parser: 1/0, True/False, "on"/"off", or {"enable": 1}."""
+    if value is None:
+        return None
+    if isinstance(value, dict):
+        for key in ("enable", "switch", "status", "value"):
+            if key in value:
+                return as_bool(value[key])
+        return None
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return value != 0
+    text = str(value).strip().lower()
+    if text in ("1", "on", "true", "yes", "open", "enable", "enabled"):
+        return True
+    if text in ("0", "off", "false", "no", "close", "disable", "disabled", ""):
+        return False
+    return None
+
+
+def as_int(value: Any) -> int | None:
+    try:
+        return int(float(value))
+    except (TypeError, ValueError):
+        return None
+
+
 def is_online(device: PawsyncDevice) -> bool | None:
     status = device.prop.get("connectionStatus")
     if status is None:

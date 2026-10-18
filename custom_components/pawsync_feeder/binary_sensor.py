@@ -17,7 +17,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .api import PawsyncDevice
 from .coordinator import PawsyncConfigEntry, PawsyncCoordinator
-from .entity import PawsyncEntity, is_online, setup_device_entities
+from .entity import PawsyncEntity, as_bool, as_int, is_online, setup_device_entities
 
 PARALLEL_UPDATES = 0
 
@@ -30,13 +30,13 @@ def _bowl_problem(d: PawsyncDevice) -> bool | None:
 
 
 def _flag(d: PawsyncDevice, key: str) -> bool | None:
-    value = d.prop.get(key)
-    return None if value is None else bool(int(value))
+    return as_bool(d.prop.get(key))
 
 
 def _desiccant_expired(d: PawsyncDevice) -> bool | None:
     days = d.prop.get("desiccantRemainTime")
-    return None if days is None else int(days) <= 0
+    days = as_int(days)
+    return None if days is None else days <= 0
 
 
 @dataclass(frozen=True, kw_only=True)

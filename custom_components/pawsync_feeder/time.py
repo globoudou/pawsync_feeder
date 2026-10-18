@@ -12,7 +12,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from .api import PawsyncDevice
 from .const import DEFAULT_SLEEP_END, DEFAULT_SLEEP_START
 from .coordinator import PawsyncConfigEntry, PawsyncCoordinator
-from .entity import PawsyncEntity, setup_device_entities
+from .entity import PawsyncEntity, as_bool, as_int, setup_device_entities
 from .switch import sleep_mode
 
 PARALLEL_UPDATES = 1
@@ -66,9 +66,8 @@ class PawsyncSleepTime(PawsyncEntity, TimeEntity):
     @property
     def native_value(self) -> time | None:
         sm = sleep_mode(self.device)
-        if self._field not in sm:
-            return None
-        return secs_to_time(sm[self._field])
+        secs = as_int(sm.get(self._field))
+        return None if secs is None else secs_to_time(secs)
 
     async def async_set_value(self, value: time) -> None:
         sm = sleep_mode(self.device)
@@ -78,7 +77,7 @@ class PawsyncSleepTime(PawsyncEntity, TimeEntity):
             start = time_to_secs(value)
         else:
             end = time_to_secs(value)
-        enabled = bool(int(sm.get("enable", 0)))
+        enabled = bool(as_bool(sm.get("enable", 0)))
         await self._command(
             self.coordinator.client.set_sleep_mode(self.device, enabled, start, end),
             {"sleepMode": {START: start, END: end}},

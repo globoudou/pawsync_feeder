@@ -154,3 +154,14 @@ async def test_card_served(hass: HomeAssistant, cloud, hass_client) -> None:
     resp = await client.get("/pawsync_feeder/pawsync-feeder-card.js")
     assert resp.status == 200
     assert "pawsync-feeder-card" in await resp.text()
+
+
+async def test_odd_flag_formats(hass: HomeAssistant, cloud) -> None:
+    cloud.status["accurateFeeding"] = {"enable": True, "level": 2}
+    cloud.status["slowFeedSwitch"] = "on"
+    cloud.status["sleepMode"] = {"enable": "1", "startClkSec": "79200", "endClkSec": 25200}
+    await _setup(hass)
+    assert hass.states.get(_eid(hass, "switch", "precision_mode")).state == STATE_ON
+    assert hass.states.get(_eid(hass, "switch", "slow_feeding")).state == STATE_ON
+    assert hass.states.get(_eid(hass, "switch", "sleep_mode")).state == STATE_ON
+    assert hass.states.get(_eid(hass, "time", "sleep_start")).state == "22:00:00"

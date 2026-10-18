@@ -27,17 +27,19 @@ from homeassistant.util import dt as dt_util
 from .api import PawsyncDevice
 from .const import DISPENSE_LOG_TYPES, LOG_EATEN
 from .coordinator import PawsyncConfigEntry, PawsyncCoordinator, PawsyncData
-from .entity import PawsyncEntity, firmware_version, setup_device_entities
+from .entity import PawsyncEntity, as_int, firmware_version, setup_device_entities
 
 PARALLEL_UPDATES = 0
 
 
 def _food(d: PawsyncDevice) -> dict[str, Any]:
-    return d.prop.get("petFood") or {}
+    food = d.prop.get("petFood")
+    return food if isinstance(food, dict) else {}
 
 
 def _schedule(d: PawsyncDevice) -> dict[str, Any]:
-    return d.prop.get("scheduleInfo") or {}
+    info = d.prop.get("scheduleInfo")
+    return info if isinstance(info, dict) else {}
 
 
 def _logs(d: PawsyncDevice, data: PawsyncData) -> list[dict[str, Any]]:
@@ -64,7 +66,7 @@ def _sum_today(logs: list[dict[str, Any]], types: tuple[str, ...]) -> float:
 
 
 def _next_meal(d: PawsyncDevice) -> datetime | None:
-    secs = _schedule(d).get("nextTime")
+    secs = as_int(_schedule(d).get("nextTime"))
     if secs is None or secs < 0:
         return None
     when = dt_util.start_of_local_day() + timedelta(seconds=int(secs))

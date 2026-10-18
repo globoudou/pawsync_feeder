@@ -14,13 +14,14 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from .api import PawsyncClient, PawsyncDevice
 from .const import DEFAULT_SLEEP_END, DEFAULT_SLEEP_START
 from .coordinator import PawsyncConfigEntry, PawsyncCoordinator
-from .entity import PawsyncEntity, setup_device_entities
+from .entity import PawsyncEntity, as_bool, setup_device_entities
 
 PARALLEL_UPDATES = 1
 
 
 def sleep_mode(d: PawsyncDevice) -> dict[str, Any]:
-    return d.prop.get("sleepMode") or {}
+    sm = d.prop.get("sleepMode")
+    return sm if isinstance(sm, dict) else {}
 
 
 def _set_sleep(client: PawsyncClient, d: PawsyncDevice, on: bool) -> Awaitable[None]:
@@ -41,8 +42,7 @@ class PawsyncSwitchDescription(SwitchEntityDescription):
 
 
 def _int_flag(d: PawsyncDevice, key: str) -> bool | None:
-    value = d.prop.get(key)
-    return None if value is None else bool(int(value))
+    return as_bool(d.prop.get(key))
 
 
 SWITCHES: tuple[PawsyncSwitchDescription, ...] = (
@@ -73,9 +73,7 @@ SWITCHES: tuple[PawsyncSwitchDescription, ...] = (
     PawsyncSwitchDescription(
         key="sleep_mode",
         translation_key="sleep_mode",
-        value_fn=lambda d: None
-        if sleep_mode(d).get("enable") is None
-        else bool(int(sleep_mode(d)["enable"])),
+        value_fn=lambda d: as_bool(sleep_mode(d).get("enable")),
         set_fn=_set_sleep,
         optimistic_fn=lambda on: {"sleepMode": {"enable": int(on)}},
     ),
