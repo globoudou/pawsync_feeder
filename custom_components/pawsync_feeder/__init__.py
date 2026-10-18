@@ -91,7 +91,7 @@ async def _async_register_card(hass: HomeAssistant) -> None:
         _LOGGER.exception("Pawsync card could not be registered")
         hass.data[CARD_REGISTERED] = False
         return
-    _LOGGER.warning("Pawsync card registered at %s (v%s)", CARD_URL, version)
+    _LOGGER.debug("Pawsync card registered at %s (v%s)", CARD_URL, version)
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
