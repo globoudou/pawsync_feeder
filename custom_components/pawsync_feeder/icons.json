@@ -1,0 +1,58 @@
+{
+  "entity": {
+    "binary_sensor": {
+      "bowl": { "default": "mdi:bowl", "state": { "on": "mdi:bowl-outline" } },
+      "power_adapter": { "default": "mdi:power-plug", "state": { "off": "mdi:battery" } },
+      "desiccant": { "default": "mdi:water-check", "state": { "on": "mdi:water-alert" } }
+    },
+    "button": {
+      "feed": { "default": "mdi:food-drumstick" },
+      "meal_call": { "default": "mdi:bullhorn" },
+      "tare_scale": { "default": "mdi:scale-balance" },
+      "reset_desiccant": { "default": "mdi:restore" }
+    },
+    "event": {
+      "feeding": { "default": "mdi:paw" }
+    },
+    "number": {
+      "portion": { "default": "mdi:shaker-outline" },
+      "hopper_volume": { "default": "mdi:silo" }
+    },
+    "sensor": {
+      "bowl_weight": { "default": "mdi:bowl-mix" },
+      "hopper_level": { "default": "mdi:silo" },
+      "hopper_remaining": { "default": "mdi:silo" },
+      "food_days_left": { "default": "mdi:calendar-clock" },
+      "desiccant_days_left": { "default": "mdi:water-percent" },
+      "next_meal": { "default": "mdi:clock-outline" },
+      "next_meal_amount": { "default": "mdi:scale" },
+      "planned_daily_total": { "default": "mdi:sigma" },
+      "last_dispensed": { "default": "mdi:clock-check" },
+      "last_dispensed_amount": { "default": "mdi:shaker-outline" },
+      "dispensed_today": { "default": "mdi:shaker" },
+      "last_eaten": { "default": "mdi:cat" },
+      "last_eaten_amount": { "default": "mdi:food-variant" },
+      "last_meal_duration": { "default": "mdi:timer-outline" },
+      "eaten_today": { "default": "mdi:food" },
+      "pet_weight": { "default": "mdi:scale-bathroom" },
+      "pet_intake_today": { "default": "mdi:bowl" },
+      "pet_intake_target": { "default": "mdi:target" },
+      "pet_meals_today": { "default": "mdi:counter" },
+      "alerts": { "default": "mdi:alert-circle-outline" },
+      "mcu_firmware": { "default": "mdi:chip" }
+    },
+    "switch": {
+      "smart_feeding": { "default": "mdi:brain" },
+      "slow_feeding": { "default": "mdi:speedometer-slow" },
+      "precision_mode": { "default": "mdi:target" },
+      "sleep_mode": { "default": "mdi:sleep", "state": { "off": "mdi:sleep-off" } }
+    },
+    "time": {
+      "sleep_start": { "default": "mdi:weather-night" },
+      "sleep_end": { "default": "mdi:weather-sunny" }
+    }
+  },
+  "services": {
+    "feed": { "service": "mdi:food-drumstick" }
+  }
+}

@@ -1,0 +1,17 @@
+feed:
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          integration: pawsync_feeder
+          multiple: true
+    amount:
+      required: false
+      selector:
+        number:
+          min: 1
+          max: 110
+          step: 1
+          unit_of_measurement: g
+          mode: box

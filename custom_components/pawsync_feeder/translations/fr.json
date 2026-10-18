@@ -1,0 +1,215 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Compte Pawsync",
+        "description": "Utilisez les mêmes identifiants que l'application Pawsync.",
+        "data": {
+          "email": "E-mail",
+          "password": "Mot de passe"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Nouvelle authentification",
+        "description": "Le mot de passe de {email} n'est plus accepté.",
+        "data": {
+          "password": "Mot de passe"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "E-mail ou mot de passe incorrect.",
+      "cannot_connect": "Impossible de joindre le cloud Pawsync.",
+      "unknown": "Erreur inattendue."
+    },
+    "abort": {
+      "already_configured": "Ce compte est déjà configuré.",
+      "reauth_successful": "Authentification renouvelée.",
+      "wrong_account": "Ces identifiants appartiennent à un autre compte."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Options",
+        "data": {
+          "scan_interval": "Intervalle d'interrogation"
+        },
+        "data_description": {
+          "scan_interval": "Fréquence d'interrogation du cloud Pawsync, en minutes."
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "bowl": {
+        "name": "Gamelle"
+      },
+      "power_adapter": {
+        "name": "Alimentation secteur"
+      },
+      "desiccant": {
+        "name": "Déshydratant"
+      }
+    },
+    "button": {
+      "feed": {
+        "name": "Repas supplémentaire"
+      },
+      "meal_call": {
+        "name": "Appel du repas"
+      },
+      "tare_scale": {
+        "name": "Tarer la balance"
+      },
+      "reset_desiccant": {
+        "name": "Réinitialiser le déshydratant"
+      }
+    },
+    "event": {
+      "feeding": {
+        "name": "Repas",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "scheduled_meal": "Repas programmé distribué",
+              "extra_meal": "Repas supplémentaire distribué",
+              "eaten": "L'animal a mangé"
+            }
+          }
+        }
+      }
+    },
+    "number": {
+      "portion": {
+        "name": "Portion du repas supplémentaire"
+      },
+      "hopper_volume": {
+        "name": "Remplissage du réservoir (après recharge)"
+      }
+    },
+    "sensor": {
+      "bowl_weight": {
+        "name": "Croquettes dans la gamelle"
+      },
+      "hopper_level": {
+        "name": "Niveau du réservoir"
+      },
+      "hopper_remaining": {
+        "name": "Croquettes restantes dans le réservoir"
+      },
+      "food_days_left": {
+        "name": "Autonomie en croquettes"
+      },
+      "desiccant_days_left": {
+        "name": "Durée restante du déshydratant"
+      },
+      "next_meal": {
+        "name": "Prochain repas"
+      },
+      "next_meal_amount": {
+        "name": "Quantité du prochain repas"
+      },
+      "planned_daily_total": {
+        "name": "Total quotidien programmé"
+      },
+      "last_dispensed": {
+        "name": "Dernière distribution"
+      },
+      "last_dispensed_amount": {
+        "name": "Quantité de la dernière distribution"
+      },
+      "dispensed_today": {
+        "name": "Distribué aujourd'hui"
+      },
+      "last_eaten": {
+        "name": "Dernier repas mangé"
+      },
+      "last_eaten_amount": {
+        "name": "Quantité du dernier repas mangé"
+      },
+      "last_meal_duration": {
+        "name": "Durée du dernier repas"
+      },
+      "eaten_today": {
+        "name": "Mangé aujourd'hui"
+      },
+      "pet_weight": {
+        "name": "Poids de {pet}"
+      },
+      "pet_intake_today": {
+        "name": "Consommation de {pet} aujourd'hui"
+      },
+      "pet_intake_target": {
+        "name": "Objectif quotidien de {pet}"
+      },
+      "pet_meals_today": {
+        "name": "Repas de {pet} aujourd'hui"
+      },
+      "alerts": {
+        "name": "Alertes"
+      },
+      "wifi_signal": {
+        "name": "Signal Wi-Fi"
+      },
+      "mcu_firmware": {
+        "name": "Firmware MCU"
+      }
+    },
+    "switch": {
+      "smart_feeding": {
+        "name": "Distribution intelligente"
+      },
+      "slow_feeding": {
+        "name": "Distribution lente"
+      },
+      "precision_mode": {
+        "name": "Mode précision"
+      },
+      "sleep_mode": {
+        "name": "Mode nuit"
+      }
+    },
+    "time": {
+      "sleep_start": {
+        "name": "Début du mode nuit"
+      },
+      "sleep_end": {
+        "name": "Fin du mode nuit"
+      }
+    },
+    "update": {
+      "firmware": {
+        "name": "Firmware"
+      }
+    }
+  },
+  "exceptions": {
+    "command_failed": {
+      "message": "La commande Pawsync a échoué : {error}"
+    },
+    "auth_failed": {
+      "message": "Pawsync a refusé les identifiants, merci de vous ré-authentifier."
+    },
+    "unknown_device": {
+      "message": "{device_id} n'est pas un distributeur Pawsync."
+    }
+  },
+  "services": {
+    "feed": {
+      "name": "Nourrir",
+      "description": "Distribue un repas supplémentaire immédiatement.",
+      "fields": {
+        "device_id": {
+          "name": "Distributeur",
+          "description": "Distributeur(s) à utiliser."
+        },
+        "amount": {
+          "name": "Quantité",
+          "description": "Grammes à distribuer. Par défaut : la portion du repas supplémentaire."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,215 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Pawsync account",
+        "description": "Use the same credentials as the Pawsync app.",
+        "data": {
+          "email": "Email",
+          "password": "Password"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Re-authenticate",
+        "description": "The password for {email} is no longer accepted.",
+        "data": {
+          "password": "Password"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Invalid email or password.",
+      "cannot_connect": "Cannot reach the Pawsync cloud.",
+      "unknown": "Unexpected error."
+    },
+    "abort": {
+      "already_configured": "This account is already configured.",
+      "reauth_successful": "Re-authentication successful.",
+      "wrong_account": "These credentials belong to another account."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Options",
+        "data": {
+          "scan_interval": "Polling interval"
+        },
+        "data_description": {
+          "scan_interval": "How often the Pawsync cloud is queried, in minutes."
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "bowl": {
+        "name": "Bowl"
+      },
+      "power_adapter": {
+        "name": "Mains power"
+      },
+      "desiccant": {
+        "name": "Desiccant"
+      }
+    },
+    "button": {
+      "feed": {
+        "name": "Extra meal"
+      },
+      "meal_call": {
+        "name": "Meal call"
+      },
+      "tare_scale": {
+        "name": "Tare bowl scale"
+      },
+      "reset_desiccant": {
+        "name": "Reset desiccant"
+      }
+    },
+    "event": {
+      "feeding": {
+        "name": "Feeding",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "scheduled_meal": "Scheduled meal dispensed",
+              "extra_meal": "Extra meal dispensed",
+              "eaten": "Pet ate"
+            }
+          }
+        }
+      }
+    },
+    "number": {
+      "portion": {
+        "name": "Extra meal size"
+      },
+      "hopper_volume": {
+        "name": "Hopper fill (after refill)"
+      }
+    },
+    "sensor": {
+      "bowl_weight": {
+        "name": "Food in bowl"
+      },
+      "hopper_level": {
+        "name": "Hopper level"
+      },
+      "hopper_remaining": {
+        "name": "Food left in hopper"
+      },
+      "food_days_left": {
+        "name": "Food supply"
+      },
+      "desiccant_days_left": {
+        "name": "Desiccant remaining"
+      },
+      "next_meal": {
+        "name": "Next meal"
+      },
+      "next_meal_amount": {
+        "name": "Next meal amount"
+      },
+      "planned_daily_total": {
+        "name": "Planned daily total"
+      },
+      "last_dispensed": {
+        "name": "Last dispensed"
+      },
+      "last_dispensed_amount": {
+        "name": "Last dispensed amount"
+      },
+      "dispensed_today": {
+        "name": "Dispensed today"
+      },
+      "last_eaten": {
+        "name": "Last eaten"
+      },
+      "last_eaten_amount": {
+        "name": "Last eaten amount"
+      },
+      "last_meal_duration": {
+        "name": "Last meal duration"
+      },
+      "eaten_today": {
+        "name": "Eaten today"
+      },
+      "pet_weight": {
+        "name": "{pet} weight"
+      },
+      "pet_intake_today": {
+        "name": "{pet} intake today"
+      },
+      "pet_intake_target": {
+        "name": "{pet} daily target"
+      },
+      "pet_meals_today": {
+        "name": "{pet} meals today"
+      },
+      "alerts": {
+        "name": "Alerts"
+      },
+      "wifi_signal": {
+        "name": "Wi-Fi signal"
+      },
+      "mcu_firmware": {
+        "name": "MCU firmware"
+      }
+    },
+    "switch": {
+      "smart_feeding": {
+        "name": "Smart feeding"
+      },
+      "slow_feeding": {
+        "name": "Slow feeding"
+      },
+      "precision_mode": {
+        "name": "Precision mode"
+      },
+      "sleep_mode": {
+        "name": "Sleep mode"
+      }
+    },
+    "time": {
+      "sleep_start": {
+        "name": "Sleep mode start"
+      },
+      "sleep_end": {
+        "name": "Sleep mode end"
+      }
+    },
+    "update": {
+      "firmware": {
+        "name": "Firmware"
+      }
+    }
+  },
+  "exceptions": {
+    "command_failed": {
+      "message": "Pawsync command failed: {error}"
+    },
+    "auth_failed": {
+      "message": "Pawsync rejected the credentials, please re-authenticate."
+    },
+    "unknown_device": {
+      "message": "{device_id} is not a Pawsync feeder."
+    }
+  },
+  "services": {
+    "feed": {
+      "name": "Feed",
+      "description": "Dispense an extra meal now.",
+      "fields": {
+        "device_id": {
+          "name": "Feeder",
+          "description": "Feeder(s) to use."
+        },
+        "amount": {
+          "name": "Amount",
+          "description": "Grams to dispense. Defaults to the feeder's extra meal size."
+        }
+      }
+    }
+  }
+}
