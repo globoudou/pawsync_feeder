@@ -79,12 +79,19 @@ async def _async_register_card(hass: HomeAssistant) -> None:
     from homeassistant.components.frontend import add_extra_js_url
     from homeassistant.components.http import StaticPathConfig
 
-    version = (await async_get_integration(hass, DOMAIN)).version
-    await hass.http.async_register_static_paths(
-        [StaticPathConfig(CARD_URL, str(CARD_FILE), cache_headers=False)]
-    )
-    add_extra_js_url(hass, f"{CARD_URL}?v={version}")
-    _LOGGER.debug("Pawsync card served at %s", CARD_URL)
+    try:
+        version = (await async_get_integration(hass, DOMAIN)).version
+        if not CARD_FILE.is_file():
+            raise FileNotFoundError(CARD_FILE)
+        await hass.http.async_register_static_paths(
+            [StaticPathConfig(CARD_URL, str(CARD_FILE), cache_headers=False)]
+        )
+        add_extra_js_url(hass, f"{CARD_URL}?v={version}")
+    except Exception:
+        _LOGGER.exception("Pawsync card could not be registered")
+        hass.data[CARD_REGISTERED] = False
+        return
+    _LOGGER.warning("Pawsync card registered at %s (v%s)", CARD_URL, version)
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
