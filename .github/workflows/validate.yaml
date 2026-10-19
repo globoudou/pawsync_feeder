@@ -22,16 +22,20 @@ jobs:
     name: Hassfest
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: home-assistant/actions/hassfest@master
 
   tests:
     name: Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.13"
       - run: pip install pytest-homeassistant-custom-component
+      - name: Install the frontend matching Home Assistant
+        run: |
+          FRONTEND=$(python -c "import homeassistant, pathlib; p = pathlib.Path(homeassistant.__file__).parent / 'package_constraints.txt'; print(next(l.strip() for l in p.read_text().splitlines() if l.startswith('home-assistant-frontend')))")
+          pip install "$FRONTEND"
       - run: pytest -q
