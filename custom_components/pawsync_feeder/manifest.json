@@ -1,6 +1,9 @@
 {
   "domain": "pawsync_feeder",
   "name": "Pawsync Feeder",
+  "after_dependencies": [
+    "lovelace"
+  ],
   "codeowners": [
     "@globoudou"
   ],
@@ -18,5 +21,5 @@
     "custom_components.pawsync_feeder"
   ],
   "requirements": [],
-  "version": "1.2.0"
+  "version": "1.3.0"
 }

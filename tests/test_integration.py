@@ -179,4 +179,4 @@ async def test_dashboard_resource(hass: HomeAssistant, cloud) -> None:
     await _setup(hass)
     await hass.async_block_till_done(wait_background_tasks=True)
     items = [r for r in resources.async_items() if "pawsync-feeder-card" in r["url"]]
-    assert len(items) == 1 and items[0]["url"].endswith("?v=1.2.0") and items[0]["type"] == "module"
+    assert len(items) == 1 and items[0]["url"].endswith("?v=1.3.0") and items[0]["type"] == "module"
