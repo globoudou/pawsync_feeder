@@ -4,15 +4,20 @@ from __future__ import annotations
 
 import time
 from datetime import timedelta
+from pathlib import Path
 
 import pytest
 from homeassistant import config_entries
 from homeassistant.const import CONF_EMAIL, CONF_PASSWORD, STATE_ON
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
-from homeassistant.helpers import device_registry as dr, entity_registry as er
+from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers import entity_registry as er
 from homeassistant.util import dt as dt_util
-from pytest_homeassistant_custom_component.common import MockConfigEntry, async_fire_time_changed
+from pytest_homeassistant_custom_component.common import (
+    MockConfigEntry,
+    async_fire_time_changed,
+)
 
 from custom_components.pawsync_feeder.const import DOMAIN
 
@@ -135,7 +140,9 @@ async def test_hopper_and_diagnostics(hass: HomeAssistant, cloud) -> None:
     )
     assert [b for api, b in cloud.calls if api == "updatePetContentSize"][-1]["volume_ml"] == 3000.0
     assert hass.states.get(_eid(hass, "sensor", "food_days_left")).state == "25"
-    from custom_components.pawsync_feeder.diagnostics import async_get_config_entry_diagnostics
+    from custom_components.pawsync_feeder.diagnostics import (
+        async_get_config_entry_diagnostics,
+    )
 
     diag = await async_get_config_entry_diagnostics(hass, entry)
     assert diag["entry"]["data"][CONF_PASSWORD] == "**REDACTED**"
@@ -149,7 +156,12 @@ async def test_card_served(hass: HomeAssistant, cloud, hass_client) -> None:
     assert await async_setup_component(hass, "frontend", {})
     await _setup(hass)
     urls = hass.data[DATA_EXTRA_MODULE_URL].urls
-    assert any(u.startswith("/pawsync_feeder/pawsync-feeder-card.js") for u in urls)
+    assert any(
+        u.startswith(("/pawsync_feeder/pawsync-feeder-card.js", "/local/pawsync_feeder/pawsync-feeder-card.js"))
+        for u in urls
+    )
+    copy = Path(hass.config.path("www", "pawsync_feeder", "pawsync-feeder-card.js"))
+    assert copy.is_file()
     client = await hass_client()
     resp = await client.get("/pawsync_feeder/pawsync-feeder-card.js")
     assert resp.status == 200
