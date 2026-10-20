@@ -282,13 +282,36 @@ class PawsyncFeederCard extends HTMLElement {
   }
 }
 
-if (!customElements.get("pawsync-feeder-card")) {
-  customElements.define("pawsync-feeder-card", PawsyncFeederCard);
-  window.customCards = window.customCards || [];
+const CARD_TAG = "pawsync-feeder-card";
+
+// Home Assistant's frontend can swap window.customElements after this script ran
+// (scoped registry). A card defined too early is then invisible ("Custom element
+// doesn't exist"). (Re)define it in the active registry for a while.
+function defineCard() {
+  const registry = window.customElements;
+  if (registry.get(CARD_TAG)) return true;
+  try {
+    // A fresh subclass avoids "this constructor has already been used".
+    registry.define(CARD_TAG, class extends PawsyncFeederCard {});
+  } catch (err) {
+    console.warn(`${CARD_TAG}:`, err);
+  }
+  return !!registry.get(CARD_TAG);
+}
+
+defineCard();
+let defineTries = 0;
+const defineWatcher = setInterval(() => {
+  defineCard();
+  if (++defineTries >= 60) clearInterval(defineWatcher); // watch for 30 s
+}, 500);
+
+window.customCards = window.customCards || [];
+if (!window.customCards.some((c) => c.type === CARD_TAG)) {
   window.customCards.push({
-    type: "pawsync-feeder-card",
+    type: CARD_TAG,
     name: "Pawsync Feeder",
-    description: "Distributeur de croquettes Pawsync",
+    description: "Pawsync smart pet feeder",
     preview: true,
     documentationURL: "https://github.com/globoudou/pawsync_feeder",
   });
