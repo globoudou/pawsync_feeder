@@ -63,6 +63,12 @@ def build_client(hass: HomeAssistant, email: str, password: str) -> PawsyncClien
 
 CARD_URL = "/pawsync_feeder/pawsync-feeder-card.js"
 CARD_FILE = Path(__file__).parent / "www" / "pawsync-feeder-card.js"
+# Copy served by Home Assistant's own /local route, which is available from the very
+# first second of startup (our own route only exists once this integration is set up;
+# a dashboard opened in between caches the failed import until a full page reload).
+LOCAL_SUBDIR = "pawsync_feeder"
+LOCAL_URL = f"/local/{LOCAL_SUBDIR}/pawsync-feeder-card.js"
+CARD_URL_KEY = f"{DOMAIN}_card_url"
 
 
 CARD_REGISTERED = f"{DOMAIN}_card_registered"
@@ -86,12 +92,35 @@ async def _async_register_card(hass: HomeAssistant) -> None:
         await hass.http.async_register_static_paths(
             [StaticPathConfig(CARD_URL, str(CARD_FILE), cache_headers=False)]
         )
-        add_extra_js_url(hass, f"{CARD_URL}?v={version}")
+        local_ready = await hass.async_add_executor_job(_copy_card_to_www, hass.config.path("www"))
+        url = f"{LOCAL_URL if local_ready else CARD_URL}?v={version}"
+        hass.data[CARD_URL_KEY] = url
+        add_extra_js_url(hass, url)
     except Exception:
         _LOGGER.exception("Pawsync card could not be registered")
         hass.data[CARD_REGISTERED] = False
         return
-    _LOGGER.debug("Pawsync card registered at %s (v%s)", CARD_URL, version)
+    _LOGGER.debug("Pawsync card registered at %s", url)
+
+
+def _copy_card_to_www(www: str) -> bool:
+    """Copy the card into config/www; return True if /local already serves that folder.
+
+    Home Assistant only registers /local when config/www exists at startup, so on the
+    very first install we keep using our own route until the next restart.
+    """
+    www_path = Path(www)
+    served = www_path.is_dir()
+    target = www_path / LOCAL_SUBDIR / CARD_FILE.name
+    try:
+        source = CARD_FILE.read_bytes()
+        if not target.is_file() or target.read_bytes() != source:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(source)
+    except OSError as err:
+        _LOGGER.warning("Could not copy the Pawsync card to %s: %s", target, err)
+        return False
+    return served
 
 
 async def _async_ensure_dashboard_resource(hass: HomeAssistant) -> None:
@@ -110,9 +139,11 @@ async def _async_ensure_dashboard_resource(hass: HomeAssistant) -> None:
         if not resources.loaded:
             await resources.async_load()
             resources.loaded = True
-        version = (await async_get_integration(hass, DOMAIN)).version
-        url = f"{CARD_URL}?v={version}"
-        matches = [r for r in resources.async_items() if str(r.get("url", "")).split("?")[0] == CARD_URL]
+        url = hass.data.get(CARD_URL_KEY)
+        if not url:
+            return
+        ours = {CARD_URL, LOCAL_URL}
+        matches = [r for r in resources.async_items() if str(r.get("url", "")).split("?")[0] in ours]
         if not matches:
             await resources.async_create_item({"res_type": "module", "url": url})
             _LOGGER.info("Added dashboard resource %s", url)
